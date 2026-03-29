@@ -1,0 +1,42 @@
+# Sheet: revenue_trend
+year,revenue_eur_b,operating_margin_pct,yoy_growth_pct
+2019,22.2,33,
+2020,21.2,28,-4.5
+2021,30.9,39,45.8
+2022,38.6,41,24.9
+2023,42.2,42,9.3
+2024,40.8,40,-3.3
+
+# Sheet: regional_breakdown
+region,revenue_share_pct
+Asia Pacific,35
+Europe,26
+United States,24
+Japan,9
+Other,6
+
+# Sheet: product_mix
+category,share_pct
+Leather goods,52
+Ready-to-wear,20
+Shoes,14
+Watches & jewellery,8
+Other,6
+
+# Sheet: competitor_benchmark
+brand,brand_value_usd_b
+Louis Vuitton,40.7
+Chanel,22.1
+Hermes,19.3
+Gucci,15.6
+Prada,9.8
+Dior,8.4
+
+# Sheet: brand_scorecard
+dimension,score_out_of_100
+Brand recognition,98
+Price premium,95
+Heritage & story,92
+Innovation index,80
+Digital presence,74
+Sustainability,61
