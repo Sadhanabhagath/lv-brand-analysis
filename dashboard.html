@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Louis Vuitton — Brand Data Analysis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --purple: #7F77DD; --purple-light: #EEEDFE; --purple-dark: #3C3489;
+    --teal: #1D9E75; --teal-light: #E1F5EE;
+    --amber: #EF9F27; --amber-light: #FAEEDA;
+    --coral: #D85A30; --coral-light: #FAECE7;
+    --gray: #888780; --gray-light: #F1EFE8;
+    --text: #1A1A1A; --text-sec: #555555; --text-hint: #888780;
+    --bg: #F7F6F3; --surface: #FFFFFF; --border: rgba(0,0,0,0.08);
+    --radius: 12px; --radius-sm: 8px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+  .brand-mark { display: flex; align-items: center; gap: 12px; }
+  .lv-logo { width: 36px; height: 36px; background: var(--purple); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; }
+  .brand-mark h1 { font-size: 17px; font-weight: 600; color: var(--text); }
+  .brand-mark p { font-size: 12px; color: var(--text-sec); margin-top: 1px; }
+  .header-badge { font-size: 11px; padding: 4px 12px; background: var(--purple-light); color: var(--purple-dark); border-radius: 20px; font-weight: 500; }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+  .section-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin: 1.75rem 0 0.75rem; }
+
+  .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .metric { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; }
+  .metric .m-label { font-size: 11px; color: var(--text-hint); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .metric .m-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .metric .m-sub { font-size: 12px; margin-top: 5px; }
+  .up { color: var(--teal); } .neutral { color: var(--text-hint); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .card h3 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
+  .chart-box { position: relative; }
+
+  .tab-group { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid var(--border); cursor: pointer; color: var(--text-sec); background: transparent; font-family: inherit; transition: all 0.15s; }
+  .tab:hover { background: var(--gray-light); }
+  .tab.active { background: var(--purple-light); color: var(--purple-dark); border-color: var(--purple); }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-label { font-size: 12px; color: var(--text-sec); width: 130px; flex-shrink: 0; }
+  .bar-track { flex: 1; background: var(--gray-light); border-radius: 4px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .bar-val { font-size: 12px; font-weight: 600; color: var(--text); width: 40px; text-align: right; flex-shrink: 0; }
+
+  .pill-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+  .pill-green { background: var(--teal-light); color: #085041; }
+  .pill-red { background: var(--coral-light); color: #712B13; }
+
+  .insight { font-size: 12px; color: var(--text-sec); line-height: 1.65; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--border); }
+
+  footer { text-align: center; font-size: 11px; color: var(--text-hint); padding: 2rem; }
+  footer a { color: var(--purple); text-decoration: none; }
+
+  @media (max-width: 700px) {
+    .metric-row { grid-template-columns: repeat(2,1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    main { padding: 1rem; }
+    header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-mark">
+    <div class="lv-logo">LV</div>
+    <div>
+      <h1>Louis Vuitton — Brand Data Analysis</h1>
+      <p>Financial performance · Market positioning · Competitive intelligence</p>
+    </div>
+  </div>
+  <span class="header-badge">Data Analysis Project</span>
+</header>
+
+<main>
+
+  <div class="section-label">Brand overview</div>
+  <div class="metric-row">
+    <div class="metric">
+      <div class="m-label">Brand value</div>
+      <div class="m-value">$40.7B</div>
+      <div class="m-sub up">+8% YoY</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Est. LV revenue</div>
+      <div class="m-value">~$20B</div>
+      <div class="m-sub neutral">~40% of LVMH</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Global stores</div>
+      <div class="m-value">460+</div>
+      <div class="m-sub neutral">50+ countries</div>
+    </div>
+    <div class="metric">
+      <div class="m-label">Founded</div>
+      <div class="m-value">1854</div>
+      <div class="m-sub neutral">Paris, France</div>
+    </div>
+  </div>
+
+  <div class="section-label">Revenue & profitability</div>
+  <div class="card">
+    <div class="tab-group" id="tabs">
+      <button class="tab active" onclick="switchChart('revenue',this)">Revenue (€B)</button>
+      <button class="tab" onclick="switchChart('growth',this)">YoY growth %</button>
+      <button class="tab" onclick="switchChart('margin',this)">Operating margin %</button>
+    </div>
+    <div class="chart-box" style="height:240px;"><canvas id="mainChart"></canvas></div>
+    <p class="insight" id="mainInsight">Fashion & Leather Goods grew from €21.2B (2020) to €42.2B (2023) — nearly doubling in 3 years — before moderating in 2024 amid softening demand in Asia Pacific.</p>
+  </div>
+
+  <div class="section-label">Market breakdown</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Revenue by region</h3>
+      <div class="bar-row"><div class="bar-label">Asia Pacific</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#7F77DD"></div></div><div class="bar-val">35%</div></div>
+      <div class="bar-row"><div class="bar-label">Europe</div><div class="bar-track"><div class="bar-fill" style="width:26%;background:#7F77DD"></div></div><div class="bar-val">26%</div></div>
+      <div class="bar-row"><div class="bar-label">United States</div><div class="bar-track"><div class="bar-fill" style="width:24%;background:#7F77DD"></div></div><div class="bar-val">24%</div></div>
+      <div class="bar-row"><div class="bar-label">Japan</div><div class="bar-track"><div class="bar-fill" style="width:9%;background:#AFA9EC"></div></div><div class="bar-val">9%</div></div>
+      <div class="bar-row"><div class="bar-label">Other</div><div class="bar-track"><div class="bar-fill" style="width:6%;background:#CECBF6"></div></div><div class="bar-val">6%</div></div>
+      <p class="insight">Asia Pacific is the single largest market. China consumer confidence is a primary macro risk for LV's top line.</p>
+    </div>
+    <div class="card">
+      <h3>Product category mix</h3>
+      <div class="chart-box" style="height:190px;"><canvas id="donutChart"></canvas></div>
+      <p class="insight">Leather goods dominate at 52%. Ready-to-wear and shoes are high-growth categories expanding LV's cultural footprint.</p>
+    </div>
+  </div>
+
+  <div class="section-label">Competitive intelligence</div>
+  <div class="card">
+    <h3>Luxury brand value benchmark ($B)</h3>
+    <div class="chart-box" style="height:200px;"><canvas id="compChart"></canvas></div>
+    <p class="insight">LV leads at $40.7B — 1.8× Chanel and more than 2× Hermès. Its brand value exceeds the combined total of Gucci, Prada, and Dior.</p>
+  </div>
+
+  <div class="section-label">Brand strength scorecard</div>
+  <div class="card">
+    <h3>Six-dimension assessment</h3>
+    <div style="margin-top:4px;">
+      <div class="bar-row"><div class="bar-label">Brand recognition</div><div class="bar-track"><div class="bar-fill" style="width:98%;background:#1D9E75"></div></div><div class="bar-val">98</div></div>
+      <div class="bar-row"><div class="bar-label">Price premium</div><div class="bar-track"><div class="bar-fill" style="width:95%;background:#1D9E75"></div></div><div class="bar-val">95</div></div>
+      <div class="bar-row"><div class="bar-label">Heritage & story</div><div class="bar-track"><div class="bar-fill" style="width:92%;background:#1D9E75"></div></div><div class="bar-val">92</div></div>
+      <div class="bar-row"><div class="bar-label">Innovation index</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#EF9F27"></div></div><div class="bar-val">80</div></div>
+      <div class="bar-row"><div class="bar-label">Digital presence</div><div class="bar-track"><div class="bar-fill" style="width:74%;background:#EF9F27"></div></div><div class="bar-val">74</div></div>
+      <div class="bar-row"><div class="bar-label">Sustainability</div><div class="bar-track"><div class="bar-fill" style="width:61%;background:#D85A30"></div></div><div class="bar-val">61</div></div>
+    </div>
+    <p class="insight">Overall average: 83.3/100. Heritage, recognition, and pricing power are near-perfect. Sustainability is the structural gap — increasingly scrutinised by Gen Z consumers and ESG investors.</p>
+  </div>
+
+  <div class="section-label">Strategic outlook</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Growth drivers</h3>
+      <div class="pill-wrap">
+        <span class="pill pill-green">Digital expansion</span>
+        <span class="pill pill-green">Brand collaborations</span>
+        <span class="pill pill-green">Experiential retail</span>
+        <span class="pill pill-green">China recovery</span>
+        <span class="pill pill-green">Men's fashion</span>
+        <span class="pill pill-green">Travel retail rebound</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Key risks</h3>
+      <div class="pill-wrap">
+        <span class="pill pill-red">China slowdown</span>
+        <span class="pill pill-red">Counterfeit market</span>
+        <span class="pill pill-red">Brand dilution</span>
+        <span class="pill pill-red">FX volatility</span>
+        <span class="pill pill-red">Gen Z shifts</span>
+        <span class="pill pill-red">ESG pressure</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Built by <a href="https://github.com/Sadhanabhagath" target="_blank">Bhagath Sadhana</a> &nbsp;·&nbsp;
+  Data: LVMH Annual Reports, Kantar BrandZ 2024, Interbrand &nbsp;·&nbsp;
+  <a href="https://github.com/Sadhanabhagath/lv-brand-analysis" target="_blank">View on GitHub</a>
+</footer>
+
+<script>
+const PURPLE = "#7F77DD", TEAL = "#1D9E75", AMBER = "#EF9F27", CORAL = "#D85A30", GRAY = "#888780";
+const gridColor = "rgba(0,0,0,0.05)", textColor = "#555555";
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } },
+    y: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } }
+  }
+};
+
+const chartData = {
+  revenue: {
+    labels: ["2019","2020","2021","2022","2023","2024e"],
+    data: [22.2,21.2,30.9,38.6,42.2,40.8],
+    color: PURPLE,
+    insight: "Fashion & Leather Goods grew from €21.2B (2020) to €42.2B (2023) — nearly doubling in 3 years — before moderating in 2024 amid softening demand in Asia Pacific."
+  },
+  growth: {
+    labels: ["2020","2021","2022","2023","2024e"],
+    data: [-4.5,45.8,24.9,9.3,-3.3],
+    color: TEAL,
+    insight: "2021 saw explosive +45.8% growth from post-COVID revenge spending. Growth normalised through 2023, with 2024 reflecting demand moderation in LV's largest market — Asia Pacific."
+  },
+  margin: {
+    labels: ["2019","2020","2021","2022","2023","2024e"],
+    data: [33,28,39,41,42,40],
+    color: AMBER,
+    insight: "Operating margins expanded from 28% (2020) to ~42% (2023), reflecting LV's exceptional pricing power. Luxury's inelastic demand insulates margins even during broader downturns."
+  }
+};
+
+let mainChart;
+function switchChart(key, btn) {
+  document.querySelectorAll("#tabs .tab").forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+  const d = chartData[key];
+  if (mainChart) mainChart.destroy();
+  const barColors = d.data.map(v => key === "growth" ? (v >= 0 ? TEAL + "CC" : CORAL + "CC") : d.color + "CC");
+  mainChart = new Chart(document.getElementById("mainChart"), {
+    type: "bar",
+    data: {
+      labels: d.labels,
+      datasets: [{ data: d.data, backgroundColor: barColors, borderColor: barColors, borderWidth: 0, borderRadius: 5 }]
+    },
+    options: { ...baseOpts }
+  });
+  document.getElementById("mainInsight").textContent = d.insight;
+}
+
+mainChart = new Chart(document.getElementById("mainChart"), {
+  type: "bar",
+  data: {
+    labels: chartData.revenue.labels,
+    datasets: [{ data: chartData.revenue.data, backgroundColor: PURPLE + "CC", borderWidth: 0, borderRadius: 5 }]
+  },
+  options: { ...baseOpts }
+});
+
+new Chart(document.getElementById("donutChart"), {
+  type: "doughnut",
+  data: {
+    labels: ["Leather goods","Ready-to-wear","Shoes","Watches & jewellery","Other"],
+    datasets: [{ data: [52,20,14,8,6], backgroundColor: [PURPLE, TEAL, AMBER, "#D4537E", GRAY], borderWidth: 0 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: "62%",
+    plugins: { legend: { position: "right", labels: { color: textColor, font: { size: 11 }, boxWidth: 10, padding: 8 } } }
+  }
+});
+
+new Chart(document.getElementById("compChart"), {
+  type: "bar",
+  data: {
+    labels: ["Louis Vuitton","Chanel","Hermès","Gucci","Prada","Dior"],
+    datasets: [{
+      data: [40.7,22.1,19.3,15.6,9.8,8.4],
+      backgroundColor: [PURPLE + "CC", GRAY+"99", GRAY+"99", GRAY+"99", GRAY+"99", GRAY+"99"],
+      borderWidth: 0, borderRadius: 5
+    }]
+  },
+  options: {
+    indexAxis: "y", responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 11 }, callback: v => "$"+v+"B" }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } }
+    }
+  }
+});
+</script>
+</body>
+</html>
